@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:flutter/services.dart';
-import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
-import 'package:maskhaze_flutter/examples/debugoptionsexample.dart';
+import 'package:maskhaze_flutter/ColorStyle.dart';
+import 'package:maskhaze_flutter/screens/SimulateMaskhazeScreen.dart';
+import 'package:maskhaze_flutter/screens/SimulateSRTMazeScreen.dart';
+import 'screens/HomeScreen.dart';
+import 'screens/ProductsScreen.dart';
+import 'screens/ContactScreen.dart';
 
+const widgetOptiosn = [
+  HomeScreen(),
+  Productsscreen(),
+  Contactscreen(),
+];
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,101 +18,53 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  static const String _title = 'AR Plugin Demo';
+  int _selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      platformVersion = await ArFlutterPlugin.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+  void _onItemTapped(int index) {
+    _selectedIndex = index;
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {
+        '/simulate-maskhaze': (context) => Simulatemaskhazescreen(),
+        '/simulate-srtmaze': (context) => Simulatesrtmazescreen(),
+      },
+      color: ColorStyles.primary,
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text(_title),
-        ),
-        body: Column(children: [
-          Text('Running on: $_platformVersion\n'),
-          Expanded(
-            child: ExampleList(),
-          ),
-        ]),
-      ),
-    );
-  }
-}
-
-class ExampleList extends StatelessWidget {
-  ExampleList({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final examples = [
-      Example(
-          'Debug Options',
-          'Visualize feature points, planes and world coordinate system',
-          () => Navigator.push(context,
-              MaterialPageRoute(builder: (context) => DebugOptionsWidget()))),
-    ];
-    return ListView(
-      children:
-          examples.map((example) => ExampleCard(example: example)).toList(),
-    );
-  }
-}
-
-class ExampleCard extends StatelessWidget {
-  ExampleCard({Key? key, required this.example}) : super(key: key);
-  final Example example;
-
-  @override
-  build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        splashColor: Colors.blue.withAlpha(30),
-        onTap: () {
-          example.onTap();
-        },
-        child: ListTile(
-          title: Text(example.name),
-          subtitle: Text(example.description),
+        body: widgetOptiosn[_selectedIndex],
+        backgroundColor: ColorStyles.backgroundMain,
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_bag),
+              label: 'Products',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.contact_mail),
+              label: 'Contact',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: ColorStyles.primary,
+          unselectedItemColor: ColorStyles.textMuted,
+          backgroundColor: ColorStyles.backgroundMain,
+          onTap: _onItemTapped,
         ),
       ),
     );
   }
-}
-
-class Example {
-  const Example(this.name, this.description, this.onTap);
-  final String name;
-  final String description;
-  final Function onTap;
 }
