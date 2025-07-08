@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.3"
+  arkit_plugin:
+    dependency: "direct main"
+    description:
+      name: arkit_plugin
+      sha256: c9492f41161ca667cf834ec1fdff686c044cd937313fe325589fadf318228560
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2"
   async:
     dependency: transitive
     description:
