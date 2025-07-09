@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:maskhaze_flutter/ColorStyle.dart';
 import 'package:maskhaze_flutter/screens/SimulateMaskhazeScreen.dart';
-import 'package:maskhaze_flutter/screens/SimulateSRTMazeScreen.dart';
+import 'package:maskhaze_flutter/screens/simulate_srtmaze/SimulateSRTMazeWrapper.dart';
 import 'screens/HomeScreen.dart';
 import 'screens/ProductsScreen.dart';
 import 'screens/ContactScreen.dart';
@@ -37,7 +37,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       routes: {
         '/simulate-maskhaze': (context) => Simulatemaskhazescreen(),
-        '/simulate-srtmaze': (context) => Simulatesrtmazescreen(),
+        '/simulate-srtmaze': (context) => Simulatesrtmazewrapper(),
       },
       color: ColorStyles.primary,
       home: Scaffold(
