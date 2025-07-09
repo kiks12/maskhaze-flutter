@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.maskhaze_flutter"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -24,7 +24,7 @@ android {
         applicationId = "com.example.maskhaze_flutter"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = 24
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -36,6 +36,12 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
+    }
+
+    dependencies {
+        implementation("com.google.ar:core:1.33.0")
+        implementation("com.google.ar.sceneform.ux:sceneform-ux:1.8.0")
+        implementation("com.google.ar.sceneform:core:1.15.0")
     }
 }
 
