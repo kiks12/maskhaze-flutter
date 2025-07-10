@@ -2,8 +2,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:maskhaze_flutter/screens/simulate_srtmaze/SimulateAndroidSRTMazeScreen.dart';
-import 'package:maskhaze_flutter/screens/simulate_srtmaze/SimulateIosSRTMazeScreen.dart';
+import 'package:maskhaze_flutter/screens/simulate_srtmaze/simulate_android_srtmaze_screen.dart';
+import 'package:maskhaze_flutter/screens/simulate_srtmaze/simulate_ios_srtmaze_screen.dart';
 
 class Simulatesrtmazewrapper extends StatelessWidget {
   const Simulatesrtmazewrapper({super.key});
