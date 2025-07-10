@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:maskhaze_flutter/ColorStyle.dart';
-import 'package:maskhaze_flutter/screens/SimulateMaskhazeScreen.dart';
+import 'package:maskhaze_flutter/color_style.dart';
+import 'package:maskhaze_flutter/screens/simulate_maskhaze_screen.dart';
 import 'package:maskhaze_flutter/screens/simulate_srtmaze/SimulateSRTMazeWrapper.dart';
-import 'screens/HomeScreen.dart';
-import 'screens/ProductsScreen.dart';
-import 'screens/ContactScreen.dart';
+import 'screens/home_screen.dart';
+import 'screens/products/products_screen.dart';
+import 'screens/contact_screen.dart';
 
 const widgetOptiosn = [
   HomeScreen(),
   Productsscreen(),
-  Contactscreen(),
+  ContactScreen(),
 ];
 
 void main() {

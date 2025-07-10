@@ -40,6 +40,7 @@ dependencies:
   permission_handler: ^12.0.1
   arkit_plugin: ^1.1.2
   arcore_flutter_plugin: ^0.1.0
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +74,25 @@ flutter:
     - assets/models/SampleLayout.glb
     - assets/models/SampleLayout.usdz
     - assets/models/SampleLayout2.usdz
+    - assets/products/DRAGER-FPS-7000.png
+    - assets/products/SCOTT-AV-30000.png
+    - assets/products/MSA-G1.png
+    - assets/products/INTERSPIRO-SPIROMATIC-S8.png
+    - assets/products/MSA-ULTRA-ELITE-(FIREHAWK).png
+    - assets/products/AVON-ISI-VIKING-Z-SEVEN.png
+    - assets/products/SCOTT-AV-2000.png
+    - assets/products/SCOTT-C5.png
+    - assets/products/SCOTT-AV-3000-LITE.png
+    - assets/products/MSA-G1-LIGHT.png
+    - assets/products/SCOTT-AV-3000-LIGHT-DAZZLE.png
+    - assets/products/mazeproduct.png
+    - assets/accessories/WINDOW-PANEL-SRT-200002W.png
+    - assets/accessories/DRYWALL-PANEL-SRT20002DW.png
+    - assets/accessories/DOOR-PANEL-SRT20002DR.png
+    - assets/accessories/GROUND-MOUNTING-CLIPS-SRT20008(QTY8).png
+    - assets/accessories/SIDE-WALL-BRACES-SRT20008(QTY4).png
+    - assets/accessories/PANEL-STABILIZER-SRT20008(QTY4).png
+    - assets/accessories/CONNECTING-PINS-SRT20004(24PINS).png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

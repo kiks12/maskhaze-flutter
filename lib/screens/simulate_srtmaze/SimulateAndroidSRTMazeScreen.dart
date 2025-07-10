@@ -1,7 +1,7 @@
 
 import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
 import 'package:flutter/material.dart';
-import 'package:maskhaze_flutter/ColorStyle.dart';
+import 'package:maskhaze_flutter/color_style.dart';
 
 class Simulateandroidsrtmazescreen extends StatefulWidget {
   const Simulateandroidsrtmazescreen({super.key});

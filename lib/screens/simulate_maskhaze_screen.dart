@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:maskhaze_flutter/ColorStyle.dart';
+import 'package:maskhaze_flutter/color_style.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class Simulatemaskhazescreen extends StatefulWidget {
