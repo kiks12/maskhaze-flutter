@@ -1,7 +1,26 @@
-
-import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
+import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
+import 'package:ar_flutter_plugin/datatypes/config_planedetection.dart';
+import 'package:ar_flutter_plugin/datatypes/node_types.dart';
+import 'package:ar_flutter_plugin/managers/ar_anchor_manager.dart';
+import 'package:ar_flutter_plugin/managers/ar_location_manager.dart';
+import 'package:ar_flutter_plugin/managers/ar_object_manager.dart';
+import 'package:ar_flutter_plugin/managers/ar_session_manager.dart';
+import 'package:ar_flutter_plugin/models/ar_hittest_result.dart';
+import 'package:ar_flutter_plugin/models/ar_node.dart';
 import 'package:flutter/material.dart';
 import 'package:maskhaze_flutter/color_style.dart';
+import 'package:vector_math/vector_math_64.dart' as vm;
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+
+Future<String> copyAssetToFile(String assetPath) async {
+  final byteData = await rootBundle.load(assetPath);
+  final tempDir = await getTemporaryDirectory();
+  final file = File('${tempDir.path}/${assetPath.split('/').last}');
+  await file.writeAsBytes(byteData.buffer.asUint8List());
+  return file.path;
+}
 
 class Simulateandroidsrtmazescreen extends StatefulWidget {
   const Simulateandroidsrtmazescreen({super.key});
@@ -11,35 +30,69 @@ class Simulateandroidsrtmazescreen extends StatefulWidget {
 }
 
 class _SimulateandroidsrtmazescreenState extends State<Simulateandroidsrtmazescreen> {
-  late ArCoreController arCoreController;
-  final List<String> _nodeNames = [];
-  int _selectedModel = 0; // 0: Single Panel, 1: Sample Layout
+  late ARSessionManager arSessionManager;
+  late ARObjectManager arObjectManager;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  void _onArCoreViewCreated(ArCoreController controller) {
-    arCoreController = controller;
-  }
+  final List<ARNode> _nodes = [];
+  int _selectedModel = 0;
 
   @override
   void dispose() {
-    arCoreController.dispose();
+    arSessionManager.dispose();
     super.dispose();
   }
+
+  void onARViewCreated(ARSessionManager sessionManager, ARObjectManager objectManager, ARAnchorManager anchorManager, ARLocationManager locationManager) {
+    arSessionManager = sessionManager;
+    arObjectManager = objectManager;
+
+    arSessionManager.onInitialize(
+      showFeaturePoints: false,
+      showPlanes: true,
+      handleTaps: true,
+    );
+
+    arObjectManager.onInitialize();
+
+    arSessionManager.onPlaneOrPointTap = onPlaneTap;
+  }
+
+  Future<void> onPlaneTap(List<ARHitTestResult> hits) async {
+    if (hits.isEmpty) return;
+
+    final hit = hits.first;
+
+    final localPath = await copyAssetToFile(
+      _selectedModel == 0
+          ? 'assets/models/SinglePanel.glb'
+          : 'assets/models/SampleLayout2.glb',
+    );
+
+    final node = ARNode(
+      type: NodeType.webGLB,
+      uri: 'file://$localPath',
+      scale: vm.Vector3.all(1),
+      position: hit.worldTransform.getTranslation(),
+      eulerAngles: vm.Vector3(hit.worldTransform.getTranslation().x, 0, 0),
+    );
+
+    bool didAdd = await arObjectManager.addNode(node) ?? false;
+    if (didAdd) {
+      setState(() {
+        _nodes.add(node);
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          ArCoreView(
-            onArCoreViewCreated: _onArCoreViewCreated,
-            enablePlaneRenderer: true,
-            type: ArCoreViewType.STANDARDVIEW,
-            enableTapRecognizer: true,
+          ARView(
+            onARViewCreated: onARViewCreated,
+            planeDetectionConfig: PlaneDetectionConfig.horizontal,
           ),
           Align(
             alignment: Alignment.bottomCenter,
@@ -49,7 +102,7 @@ class _SimulateandroidsrtmazescreenState extends State<Simulateandroidsrtmazescr
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (_nodeNames.isNotEmpty) 
+                  if (_nodes.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: Material(
@@ -58,7 +111,14 @@ class _SimulateandroidsrtmazescreenState extends State<Simulateandroidsrtmazescr
                         elevation: 6,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(32),
-                          onTap: () {},
+                          onTap: () async {
+                            for (final node in _nodes) {
+                              await arObjectManager.removeNode(node);
+                            }
+                            setState(() {
+                              _nodes.clear();
+                            });
+                          },
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                             decoration: BoxDecoration(
@@ -72,11 +132,9 @@ class _SimulateandroidsrtmazescreenState extends State<Simulateandroidsrtmazescr
                                 ),
                               ],
                             ),
-                            child: Text(
+                            child: const Text(
                               'Clear',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
+                              style: TextStyle(color: Colors.white),
                             ),
                           ),
                         ),
