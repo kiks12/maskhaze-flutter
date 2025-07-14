@@ -5,9 +5,9 @@
     <uses-feature android:name="android.hardware.camera.ar" android:required="true" />
 
     <application
-        android:label="maskhaze_flutter"
+        android:label="maskhaze"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"

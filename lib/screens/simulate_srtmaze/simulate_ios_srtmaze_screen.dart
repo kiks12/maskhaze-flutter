@@ -19,6 +19,7 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
   @override
   void dispose() {
     super.dispose();
+    arkitController.dispose();
   }
 
   @override
@@ -29,6 +30,7 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
           ARKitSceneView(
             onARKitViewCreated: onARKitViewCreated,
             planeDetection: ARPlaneDetection.horizontal,
+            showFeaturePoints: true,
             enableTapRecognizer: true,
           ),
           Align(
@@ -177,28 +179,37 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
   void onARTapHandler(List<ARKitTestResult> hits) async {
     if (hits.isEmpty) return;
 
-    final hit = hits.firstWhere(
-      (h) => h.type == ARKitHitTestResultType.existingPlane,
-      orElse: () => hits.first,
-    );
+    try {
+      ARKitTestResult hit = hits.firstWhere(
+        (h) => h.type == ARKitHitTestResultType.existingPlaneUsingExtent,
+      );
 
-    final cameraTransform = await arkitController.getCameraEulerAngles();
-    final cameraYaw = cameraTransform.y;
+      print("HIT ${hit.type}");
+      final modelUrl = _selectedModel == 0 ? 'SinglePanel.usdz' : 'SampleLayout3.usdz';
 
-    final position = hit.worldTransform.getTranslation();
-    final modelUrl = _selectedModel == 0 ? 'SinglePanel.usdz' : 'SampleLayout3.usdz';
+      final cameraTransform = await arkitController.getCameraEulerAngles();
 
-    final node = ARKitReferenceNode(
-      url: modelUrl,
-      name: "model_${_nodeNames.length}",
-      position: position,
-      scale: _selectedModel == 0 ? vm.Vector3(0.5, 0.5, 0.5) : vm.Vector3(0.05, 0.05, 0.05),
-      eulerAngles: vm.Vector3(cameraYaw, 0, 0)
-    );
+      final node = ARKitReferenceNode(
+        light: ARKitLight(
+          intensity: 10.0,
+          type: ARKitLightType.ambient
+        ),
+        url: modelUrl,
+        name: "model_${_nodeNames.length}",
+        scale: _selectedModel == 0 ?  vm.Vector3.all(0.7) : vm.Vector3.all(0.1),
+        position: hit.worldTransform.getTranslation(),
+        eulerAngles: vm.Vector3(cameraTransform.y, 0, 0),
+      );
 
-    arkitController.add(node);
-    setState(() {
-      _nodeNames.add(node.name);
-    });
+      arkitController.add(node);
+      setState(() {
+        _nodeNames.add(node.name);
+      });
+    } catch (e) {
+      AlertDialog(
+        title: Text("Object Render Failed"),
+        content: Text("Cannot find surface to anchor object"),
+      );
+    }
   }
 }
