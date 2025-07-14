@@ -60,27 +60,52 @@ class _SimulateandroidsrtmazescreenState extends State<Simulateandroidsrtmazescr
   Future<void> onPlaneTap(List<ARHitTestResult> hits) async {
     if (hits.isEmpty) return;
 
-    final hit = hits.first;
+    try {
+      final hit = hits.first;
 
-    final localPath = await copyAssetToFile(
-      _selectedModel == 0
-          ? 'assets/models/SinglePanel.glb'
-          : 'assets/models/SampleLayout2.glb',
-    );
+      final localPath = await copyAssetToFile(
+        _selectedModel == 0
+            ? 'assets/models/SinglePanel.glb'
+            : 'assets/models/SampleLayout2.glb',
+      );
 
-    final node = ARNode(
-      type: NodeType.webGLB,
-      uri: 'file://$localPath',
-      scale: vm.Vector3.all(1),
-      position: hit.worldTransform.getTranslation(),
-      eulerAngles: vm.Vector3(hit.worldTransform.getTranslation().x, 0, 0),
-    );
+      final node = ARNode(
+        type: NodeType.webGLB,
+        uri: 'file://$localPath',
+        scale: vm.Vector3.all(1),
+        position: hit.worldTransform.getTranslation(),
+        eulerAngles: vm.Vector3(hit.worldTransform.getTranslation().x, 0, 0),
+      );
 
-    bool didAdd = await arObjectManager.addNode(node) ?? false;
-    if (didAdd) {
-      setState(() {
-        _nodes.add(node);
-      });
+      bool didAdd = await arObjectManager.addNode(node) ?? false;
+      if (didAdd) {
+        setState(() {
+          _nodes.add(node);
+        });
+      }
+    } catch(e) {
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: ColorStyles.backgroundMain,
+              iconColor: ColorStyles.primary,
+              title: const Text("Object Render Failed", style: TextStyle(color: ColorStyles.textMain),),
+              content: const Text("Cannot find surface to anchor object.", style: TextStyle(color: ColorStyles.textLight),),
+              actions: [
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(ColorStyles.primary),
+                  ),
+                  child: const Text("OK", style: TextStyle(color: ColorStyles.textMain),),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
 

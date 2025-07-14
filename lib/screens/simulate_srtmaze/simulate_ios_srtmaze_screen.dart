@@ -184,7 +184,6 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
         (h) => h.type == ARKitHitTestResultType.existingPlaneUsingExtent,
       );
 
-      print("HIT ${hit.type}");
       final modelUrl = _selectedModel == 0 ? 'SinglePanel.usdz' : 'SampleLayout3.usdz';
 
       final cameraTransform = await arkitController.getCameraEulerAngles();
@@ -196,7 +195,7 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
         ),
         url: modelUrl,
         name: "model_${_nodeNames.length}",
-        scale: _selectedModel == 0 ?  vm.Vector3.all(0.7) : vm.Vector3.all(0.1),
+        scale: _selectedModel == 0 ?  vm.Vector3.all(0.7) : vm.Vector3.all(0.09),
         position: hit.worldTransform.getTranslation(),
         eulerAngles: vm.Vector3(cameraTransform.y, 0, 0),
       );
@@ -206,10 +205,28 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
         _nodeNames.add(node.name);
       });
     } catch (e) {
-      AlertDialog(
-        title: Text("Object Render Failed"),
-        content: Text("Cannot find surface to anchor object"),
-      );
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: ColorStyles.backgroundMain,
+              iconColor: ColorStyles.primary,
+              title: const Text("Object Render Failed", style: TextStyle(color: ColorStyles.textMain),),
+              content: const Text("Cannot find surface to anchor object.", style: TextStyle(color: ColorStyles.textLight),),
+              actions: [
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(ColorStyles.primary),
+                  ),
+                  child: const Text("OK", style: TextStyle(color: ColorStyles.textMain),),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
 }
