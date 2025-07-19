@@ -51,6 +51,8 @@ class _SimulatemaskhazescreenState extends State<Simulatemaskhazescreen> {
       ResolutionPreset.medium,
     );
     _initializeControllerFuture = _controller!.initialize();
+    await _controller?.setFocusMode(FocusMode.locked);
+    await _controller!.setFocusPoint(const Offset(0.5, 0.5));
     setState(() {});
   }
 
@@ -113,8 +115,8 @@ class _SimulatemaskhazescreenState extends State<Simulatemaskhazescreen> {
                   CameraPreview(_controller!),
                   Container(
                     color: _selectedMode == 0
-                        ? Colors.black.withAlpha(128) // Darker for Maskhaze
-                        : Colors.black.withAlpha(48), // Less dark for Maskhaze Light
+                        ? Colors.black.withAlpha(200) // Darker for Maskhaze
+                        : Colors.black.withAlpha(100), // Less dark for Maskhaze Light
                   ),
                   Column(
                     children: [
