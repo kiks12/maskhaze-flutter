@@ -1,17 +1,27 @@
 
+import 'dart:async';
+import 'dart:ui';
+
+import 'package:arkit_plugin/arkit_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:maskhaze_flutter/color_style.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class Simulatemaskhazescreen extends StatefulWidget {
-  const Simulatemaskhazescreen({super.key});
+class Simulateandroidmaskhazescreen extends StatefulWidget {
+  const Simulateandroidmaskhazescreen({super.key});
 
   @override
-  State<Simulatemaskhazescreen> createState() => _SimulatemaskhazescreenState();
+  State<Simulateandroidmaskhazescreen> createState() => _SimulateandroidmaskhazescreenState();
 }
 
-class _SimulatemaskhazescreenState extends State<Simulatemaskhazescreen> {
+class _SimulateandroidmaskhazescreenState extends State<Simulateandroidmaskhazescreen> with SingleTickerProviderStateMixin {
+  late ARKitController arkitController;
+  late AnimationController _blurController;
+  late Animation<double> _blurAnimation;
+  double _targetBlur = 8.0; // Maximum blur
+
+  bool _objectIsClose = false;
   CameraController? _controller;
   Future<void>? _initializeControllerFuture;
   int _selectedMode = 0; // 0: Maskhaze, 1: Maskhaze Light
@@ -22,6 +32,13 @@ class _SimulatemaskhazescreenState extends State<Simulatemaskhazescreen> {
   void initState() {
     super.initState();
     _checkPermissionAndInitCamera();
+
+    _blurController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _blurAnimation = Tween<double>(begin: 10.0, end: 10.0).animate(_blurController);
   }
 
   Future<void> _checkPermissionAndInitCamera() async {
@@ -52,7 +69,6 @@ class _SimulatemaskhazescreenState extends State<Simulatemaskhazescreen> {
     );
     _initializeControllerFuture = _controller!.initialize();
     await _controller?.setFocusMode(FocusMode.locked);
-    await _controller!.setFocusPoint(const Offset(0.5, 0.5));
     setState(() {});
   }
 
@@ -60,6 +76,45 @@ class _SimulatemaskhazescreenState extends State<Simulatemaskhazescreen> {
   void dispose() {
     _controller?.dispose();
     super.dispose();
+  }
+
+  void onARKitViewCreated(ARKitController controller) {
+    arkitController = controller;
+
+    _startObjectCheckLoop();
+  }
+
+  void _checkForCloseObject() async {
+    final results = await arkitController.performHitTest(
+      x: 0.3,
+      y: 0.3,
+    );
+
+    if (results.isNotEmpty) {
+      final distance = results.first.distance; // in meters
+      final newBlur = (distance * 15).clamp(0.0, 8.0); // map distance to blur (closer = less blur)
+
+      if ((newBlur - _targetBlur).abs() > 0.1) {
+        setState(() {
+          _targetBlur = newBlur;
+          _blurAnimation = Tween<double>(
+            begin: _blurAnimation.value,
+            end: _targetBlur,
+          ).animate(CurvedAnimation(
+            parent: _blurController,
+            curve: Curves.easeInOut,
+          ));
+
+          _blurController.forward(from: 0.0);
+        });
+      }
+    }
+  }
+
+  void _startObjectCheckLoop() {
+    Timer.periodic(const Duration(milliseconds: 300), (_) {
+      if (mounted) _checkForCloseObject();
+    });
   }
 
   @override
@@ -109,41 +164,9 @@ class _SimulatemaskhazescreenState extends State<Simulatemaskhazescreen> {
             body: SafeArea(
               top: true,
               bottom: true,
-              child: Stack(
-                fit: StackFit.expand,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CameraPreview(_controller!),
-                  Container(
-                    color: _selectedMode == 0
-                        ? Colors.black.withAlpha(200) // Darker for Maskhaze
-                        : Colors.black.withAlpha(100), // Less dark for Maskhaze Light
-                  ),
-                  Column(
-                    children: [
-                      Expanded(
-                        child: Image.asset(
-                          'assets/misc/maskbg.png',
-                          fit: BoxFit.fill,
-                          width: double.infinity,
-                          height: double.infinity,
-                        ),
-                      ),
-                      Container(
-                        height: 56,
-                        color: Colors.black,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildNavButton('Maskhaze', 0, isLeft: true),
-                              _buildNavButton('Maskhaze Light', 1, isLeft: false),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                   Positioned(
                     top: 32,
                     left: 16,
@@ -170,6 +193,66 @@ class _SimulatemaskhazescreenState extends State<Simulatemaskhazescreen> {
                           ),
                           child: const Icon(Icons.arrow_back, color: Colors.white),
                         ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * 3 / 5,
+                        width: double.infinity,
+                        child: Stack(
+                          children: [
+                            // Expanded(
+                            //   child: CameraPreview(_controller!),
+                            // ),
+                            Expanded(
+                              child: ARKitSceneView(
+                                onARKitViewCreated: onARKitViewCreated,
+                              ),
+                            ),
+                            if (!_objectIsClose)
+                              AnimatedBuilder(
+                                animation: _blurAnimation,
+                                builder: (context, child) {
+                                  return BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                      sigmaX: _blurAnimation.value,
+                                      sigmaY: _blurAnimation.value,
+                                    ),
+                                    child: Container(color: Colors.black.withAlpha(10)),
+                                  );
+                                },
+                              ),
+                            Expanded(
+                              child: Container(
+                                height: double.infinity, 
+                                width: double.infinity,
+                                color: _selectedMode == 0 ? Colors.black.withAlpha(200) : Colors.black.withAlpha(150),
+                              )
+                            ),
+                            Image.asset(
+                              'assets/misc/maskbg.png',
+                              fit: BoxFit.fill,
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 56,
+                    color: Colors.black,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildNavButton('Maskhaze', 0, isLeft: true),
+                          _buildNavButton('Maskhaze Light', 1, isLeft: false),
+                        ],
                       ),
                     ),
                   ),
