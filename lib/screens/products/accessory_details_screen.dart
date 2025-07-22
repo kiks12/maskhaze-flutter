@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:maskhaze_flutter/classes/accessory.dart';
 import 'package:maskhaze_flutter/color_style.dart';
 import 'package:maskhaze_flutter/data/images.dart';
+import 'package:maskhaze_flutter/data/urls.dart';
 import 'package:maskhaze_flutter/screens/widgets/inquiry_bottom_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,7 +17,7 @@ class AccessoryDetailsScreen extends StatelessWidget {
 
 
   Future<void> _handleOrder() async {
-    const url = 'https://maskhaze.com/shop-1';
+    final url = ORDER_TARGET;
     final uri = Uri.parse(url);
     
     try {
@@ -36,7 +37,7 @@ class AccessoryDetailsScreen extends StatelessWidget {
       final email = fields['email'] ?? '';
       final message = fields['message'] ?? '';
       
-      const to = 'francistolentino1107@gmail.com';
+      final to = EMAIL;
       final subject = 'Inquiry about ${accessory.name}';
       final body = 'Name: $name\nEmail: $email\nAccessory: ${accessory.name}\nMessage: $message';
       

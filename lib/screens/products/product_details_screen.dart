@@ -3,6 +3,7 @@ import 'package:maskhaze_flutter/classes/product.dart';
 import 'package:maskhaze_flutter/classes/product_type.dart';
 import 'package:maskhaze_flutter/color_style.dart';
 import 'package:maskhaze_flutter/data/images.dart';
+import 'package:maskhaze_flutter/data/urls.dart';
 import 'package:maskhaze_flutter/screens/widgets/inquiry_bottom_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -23,7 +24,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int selectedPackIdx = 0;
 
   Future<void> _handleOrder() async {
-    const url = 'https://maskhaze.com/shop-1';
+    final url = ORDER_TARGET;
     final uri = Uri.parse(url);
     
     try {
@@ -44,7 +45,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       final message = fields['message'] ?? '';
       final selectedPack = widget.product.types[selectedPackIdx];
       
-      const to = 'francistolentino1107@gmail.com';
+      final to = EMAIL;
       final subject = 'Inquiry about ${widget.product.name}';
       final body = 'Name: $name\nEmail: $email\nProduct: ${widget.product.name} (${selectedPack.packs} pack)\nMessage: $message';
       

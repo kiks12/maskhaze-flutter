@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:maskhaze_flutter/color_style.dart';
+import 'package:maskhaze_flutter/data/urls.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class _ContactScreenState extends State<ContactScreen> {
     }
 
     try {
-      const to = 'info@maskhaze.com';
+      final to = EMAIL;
       const subject = 'Contact Inquiry';
       final body = 'Name: ${_nameController.text}\nEmail: ${_emailController.text}\nMessage: ${_messageController.text}';
       
