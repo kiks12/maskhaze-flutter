@@ -65,8 +65,8 @@ class _SimulateandroidsrtmazescreenState extends State<Simulateandroidsrtmazescr
 
       final localPath = await copyAssetToFile(
         _selectedModel == 0
-            ? 'assets/models/SinglePanel.glb'
-            : 'assets/models/SampleLayout2.glb',
+            ? 'assets/models/Single.glb'
+            : 'assets/models/Multiple.glb',
       );
 
       final node = ARNode(

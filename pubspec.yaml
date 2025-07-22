@@ -77,8 +77,10 @@ flutter:
     - assets/logo/mhlogo.jpg
 
     - assets/models/Single.gltf
+    - assets/models/Single.glb
     - assets/models/Single.usdz
     - assets/models/Multiple.gltf
+    - assets/models/Multiple.glb
     - assets/models/Multiple.usdz
 
     - assets/products/DRAGER-FPS-7000.png
