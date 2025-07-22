@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:maskhaze_flutter/color_style.dart';
 import 'package:maskhaze_flutter/screens/simulate_maskhaze/simulate_maskhaze_wrapper_screen.dart';
 import 'package:maskhaze_flutter/screens/simulate_srtmaze/simulate_srtmaze_wrapper_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/products/products_screen.dart';
 import 'screens/contact_screen.dart';
+
+
+class NativeCameraController {
+  static const MethodChannel _channel = MethodChannel('native_camera');
+
+  static Future<void> setManualFocus(double focusDistanceInMeters) async {
+    try {
+      await _channel.invokeMethod('setManualFocus', {
+        'distance': focusDistanceInMeters,
+      });
+    } on PlatformException catch (e) {
+      print('Error setting manual focus: ${e.message}');
+    }
+  }
+}
 
 const widgetOptiosn = [
   HomeScreen(),
@@ -13,6 +29,7 @@ const widgetOptiosn = [
 ];
 
 void main() {
+  
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }

@@ -122,7 +122,8 @@ class _SimulateandroidsrtmazescreenState extends State<Simulateandroidsrtmazescr
           SafeArea(
             bottom: true,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 if (_nodes.isNotEmpty)
                   Padding(

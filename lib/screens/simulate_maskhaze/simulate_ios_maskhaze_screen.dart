@@ -4,7 +4,6 @@ import 'dart:ui';
 
 import 'package:arkit_plugin/arkit_plugin.dart';
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
 import 'package:maskhaze_flutter/color_style.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -21,8 +20,6 @@ class _SimulateiosmaskhazescreenState extends State<Simulateiosmaskhazescreen> w
   late Animation<double> _blurAnimation;
   double _targetBlur = 6.0; // Maximum blur
 
-  bool _objectIsClose = false;
-  CameraController? _controller;
   Future<void>? _initializeControllerFuture;
   int _selectedMode = 0; // 0: Maskhaze, 1: Maskhaze Light
   bool _permissionDenied = false;
@@ -48,7 +45,6 @@ class _SimulateiosmaskhazescreenState extends State<Simulateiosmaskhazescreen> w
     });
     final status = await Permission.camera.request();
     if (status.isGranted) {
-      await _initCamera();
       setState(() {
         _checkingPermission = false;
       });
@@ -60,27 +56,9 @@ class _SimulateiosmaskhazescreenState extends State<Simulateiosmaskhazescreen> w
     }
   }
 
-  Future<void> _initCamera() async {
-    final cameras = await availableCameras();
-    final firstCamera = cameras.first;
-    _controller = CameraController(
-      firstCamera,
-      ResolutionPreset.medium,
-    );
-    _initializeControllerFuture = _controller!.initialize();
-    await _controller?.setFocusMode(FocusMode.locked);
-    setState(() {});
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
-
   void onARKitViewCreated(ARKitController controller) {
     arkitController = controller;
-
+    _initializeControllerFuture = _checkPermissionAndInitCamera();
     _startObjectCheckLoop();
   }
 
@@ -151,7 +129,7 @@ class _SimulateiosmaskhazescreenState extends State<Simulateiosmaskhazescreen> w
       );
     }
 
-    if (_controller == null || _initializeControllerFuture == null) {
+    if (_initializeControllerFuture == null) {
       return const Center(child: CircularProgressIndicator(color: ColorStyles.primary,));
     }
 
@@ -177,19 +155,18 @@ class _SimulateiosmaskhazescreenState extends State<Simulateiosmaskhazescreen> w
                             ARKitSceneView(
                               onARKitViewCreated: onARKitViewCreated,
                             ),
-                            if (!_objectIsClose)
-                              AnimatedBuilder(
-                                animation: _blurAnimation,
-                                builder: (context, child) {
-                                  return BackdropFilter(
-                                    filter: ImageFilter.blur(
-                                      sigmaX: _blurAnimation.value < 2.0 ? 0.0 : _blurAnimation.value,
-                                      sigmaY: _blurAnimation.value < 2.0 ? 0.0 : _blurAnimation.value,
-                                    ),
-                                    child: Container(color: Colors.transparent),
-                                  );
-                                },
-                              ),
+                            AnimatedBuilder(
+                              animation: _blurAnimation,
+                              builder: (context, child) {
+                                return BackdropFilter(
+                                  filter: ImageFilter.blur(
+                                    sigmaX: _blurAnimation.value < 2.0 ? 0.0 : _blurAnimation.value,
+                                    sigmaY: _blurAnimation.value < 2.0 ? 0.0 : _blurAnimation.value,
+                                  ),
+                                  child: Container(color: Colors.transparent),
+                                );
+                              },
+                            ),
                             Container(
                               color: _selectedMode == 0
                                   ? Colors.black.withAlpha(200)
