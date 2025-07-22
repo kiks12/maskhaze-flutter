@@ -1,25 +1,18 @@
 
 import 'dart:async';
-import 'dart:ui';
-
-import 'package:arkit_plugin/arkit_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:maskhaze_flutter/color_style.dart';
+import 'package:maskhaze_flutter/screens/widgets/ios_camera_view.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class Simulateiosmaskhazescreen extends StatefulWidget {
-  const Simulateiosmaskhazescreen({super.key});
+class Simulateios2maskhazescreen extends StatefulWidget {
+  const Simulateios2maskhazescreen({super.key});
 
   @override
-  State<Simulateiosmaskhazescreen> createState() => _SimulateiosmaskhazescreenState();
+  State<Simulateios2maskhazescreen> createState() => _Simulateios2maskhazescreenState();
 }
 
-class _SimulateiosmaskhazescreenState extends State<Simulateiosmaskhazescreen> with SingleTickerProviderStateMixin {
-  late ARKitController arkitController;
-  late AnimationController _blurController;
-  late Animation<double> _blurAnimation;
-  double _targetBlur = 6.0; // Maximum blur
-
+class _Simulateios2maskhazescreenState extends State<Simulateios2maskhazescreen> with SingleTickerProviderStateMixin {
   Future<void>? _initializeControllerFuture;
   int _selectedMode = 0; // 0: Maskhaze, 1: Maskhaze Light
   bool _permissionDenied = false;
@@ -28,14 +21,7 @@ class _SimulateiosmaskhazescreenState extends State<Simulateiosmaskhazescreen> w
   @override
   void initState() {
     super.initState();
-    _checkPermissionAndInitCamera();
-
-    _blurController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-    );
-
-    _blurAnimation = Tween<double>(begin: 6.0, end: 6.0).animate(_blurController);
+    _initializeControllerFuture = _checkPermissionAndInitCamera();
   }
 
   Future<void> _checkPermissionAndInitCamera() async {
@@ -54,45 +40,6 @@ class _SimulateiosmaskhazescreenState extends State<Simulateiosmaskhazescreen> w
         _checkingPermission = false;
       });
     }
-  }
-
-  void onARKitViewCreated(ARKitController controller) {
-    arkitController = controller;
-    _initializeControllerFuture = _checkPermissionAndInitCamera();
-    _startObjectCheckLoop();
-  }
-
-  void _checkForCloseObject() async {
-    final results = await arkitController.performHitTest(
-      x: 0.5,
-      y: 0.5,
-    );
-
-    if (results.isNotEmpty) {
-      final distance = results.first.distance; // in meters
-      final newBlur = (distance * 15).clamp(0.0, 6.0); // map distance to blur (closer = less blur)
-
-      if ((newBlur - _targetBlur).abs() > 0.1) {
-        setState(() {
-          _targetBlur = newBlur;
-          _blurAnimation = Tween<double>(
-            begin: _blurAnimation.value,
-            end: _targetBlur,
-          ).animate(CurvedAnimation(
-            parent: _blurController,
-            curve: Curves.easeInOut,
-          ));
-
-          _blurController.forward(from: 0.0);
-        });
-      }
-    }
-  }
-
-  void _startObjectCheckLoop() {
-    Timer.periodic(const Duration(milliseconds: 250), (_) {
-      if (mounted) _checkForCloseObject();
-    });
   }
 
   @override
@@ -152,21 +99,7 @@ class _SimulateiosmaskhazescreenState extends State<Simulateiosmaskhazescreen> w
                         width: double.infinity,
                         child: Stack(
                           children: [
-                            ARKitSceneView(
-                              onARKitViewCreated: onARKitViewCreated,
-                            ),
-                            AnimatedBuilder(
-                              animation: _blurAnimation,
-                              builder: (context, child) {
-                                return BackdropFilter(
-                                  filter: ImageFilter.blur(
-                                    sigmaX: _blurAnimation.value < 2.0 ? 0.0 : _blurAnimation.value,
-                                    sigmaY: _blurAnimation.value < 2.0 ? 0.0 : _blurAnimation.value,
-                                  ),
-                                  child: Container(color: Colors.transparent),
-                                );
-                              },
-                            ),
+                            IOSCameraView(),
                             Container(
                               color: _selectedMode == 0
                                   ? Colors.black.withAlpha(200)

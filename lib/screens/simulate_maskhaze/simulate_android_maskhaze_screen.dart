@@ -23,7 +23,7 @@ class _SimulateandroidmaskhazescreenState extends State<Simulateandroidmaskhazes
   void initState() {
     super.initState();
     _initializeControllerFuture = _checkPermissionAndInitCamera();
-    // NativeCameraController.setManualFocus(0.2);
+    NativeCameraController.setManualFocus(0.1);
   }
 
   Future<void> _checkPermissionAndInitCamera() async {
