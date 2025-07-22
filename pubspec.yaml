@@ -75,12 +75,12 @@ flutter:
     - assets/misc/appbg.jpg
     - assets/misc/maskbg.png
     - assets/logo/mhlogo.jpg
-    - assets/models/SinglePanel.glb
-    - assets/models/SinglePanel.usdz
-    - assets/models/SampleLayout.glb
-    - assets/models/SampleLayout2.glb
-    - assets/models/SampleLayout.usdz
-    - assets/models/SampleLayout2.usdz
+
+    - assets/models/Single.gltf
+    - assets/models/Single.usdz
+    - assets/models/Multiple.gltf
+    - assets/models/Multiple.usdz
+
     - assets/products/DRAGER-FPS-7000.png
     - assets/products/SCOTT-AV-30000.png
     - assets/products/MSA-G1.png

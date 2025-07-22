@@ -1,4 +1,6 @@
 
+import 'dart:math';
+
 import 'package:arkit_plugin/arkit_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:maskhaze_flutter/color_style.dart';
@@ -169,6 +171,8 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
     arkitController.onARTap = onARTapHandler;
   }
 
+  double degreesToRadians(double degrees) => degrees * (pi / 180);
+
   void onARTapHandler(List<ARKitTestResult> hits) async {
     if (hits.isEmpty) return;
 
@@ -177,7 +181,7 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
         (h) => h.type == ARKitHitTestResultType.existingPlaneUsingExtent,
       );
 
-      final modelUrl = _selectedModel == 0 ? 'SinglePanel.usdz' : 'SampleLayout3.usdz';
+      final modelUrl = _selectedModel == 0 ? 'Single.usdz' : 'Multiple.usdz';
 
       final cameraTransform = await arkitController.getCameraEulerAngles();
 
@@ -188,7 +192,7 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
         ),
         url: modelUrl,
         name: "model_${_nodeNames.length}",
-        scale: _selectedModel == 0 ?  vm.Vector3.all(0.7) : vm.Vector3.all(0.09),
+        scale: _selectedModel == 0 ?  vm.Vector3.all(1) : vm.Vector3.all(1),
         position: hit.worldTransform.getTranslation(),
         eulerAngles: vm.Vector3(cameraTransform.y, 0, 0),
       );
