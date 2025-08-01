@@ -5,6 +5,7 @@ import 'package:maskhaze_flutter/color_style.dart';
 import 'package:maskhaze_flutter/main.dart';
 import 'package:maskhaze_flutter/screens/widgets/android_camera_view.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 
 class Simulateandroidmaskhazescreen extends StatefulWidget {
   const Simulateandroidmaskhazescreen({super.key});
@@ -18,12 +19,25 @@ class _SimulateandroidmaskhazescreenState extends State<Simulateandroidmaskhazes
   int _selectedMode = 0; // 0: Maskhaze, 1: Maskhaze Light
   bool _permissionDenied = false;
   bool _checkingPermission = true;
+  double? _originalBrightness;
 
   @override
   void initState() {
     super.initState();
     _initializeControllerFuture = _checkPermissionAndInitCamera();
     NativeCameraController.setManualFocus(0.1);
+    _setBrightness();
+  }
+
+  Future<void> _setBrightness() async {
+    try {
+      // Store original brightness
+      _originalBrightness = await ScreenBrightness().current;
+      // Set brightness to 80%
+      await ScreenBrightness().setScreenBrightness(0.8);
+    } catch (e) {
+      print('Error setting brightness: $e');
+    }
   }
 
   Future<void> _checkPermissionAndInitCamera() async {
@@ -42,6 +56,15 @@ class _SimulateandroidmaskhazescreenState extends State<Simulateandroidmaskhazes
         _checkingPermission = false;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    // Restore original brightness
+    if (_originalBrightness != null) {
+      ScreenBrightness().setScreenBrightness(_originalBrightness!);
+    }
+    super.dispose();
   }
 
   @override
@@ -104,8 +127,8 @@ class _SimulateandroidmaskhazescreenState extends State<Simulateandroidmaskhazes
                             AndroidCameraView(),
                             Container(
                               color: _selectedMode == 0
-                                  ? Colors.black.withAlpha(200)
-                                  : Colors.black.withAlpha(175),
+                                  ? Colors.black.withAlpha(230)
+                                  : Colors.black.withAlpha(200),
                             ),
                             Image.asset(
                               'assets/misc/maskbg.png',
