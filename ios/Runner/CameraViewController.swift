@@ -42,7 +42,7 @@ class CameraViewController: UIViewController {
             // Back to main thread for UI updates
             DispatchQueue.main.async {
                 self.setupPreviewLayer()
-                self.setManualFocus(lensPosition: 0.2)
+                self.setManualFocus(lensPosition: 0.1)
             }
         }
     }

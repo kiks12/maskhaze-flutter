@@ -131,7 +131,7 @@ class CameraPlatformView(context: Context, id: Int, messenger: BinaryMessenger) 
                     // ✅ Disable all auto controls and set manual focus
                     set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO) // or OFF if supported
                     set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_OFF)
-                    set(CaptureRequest.LENS_FOCUS_DISTANCE, 10.0f) // 1 / distance (meters)
+                    set(CaptureRequest.LENS_FOCUS_DISTANCE, 5.0f) // 1 / distance (meters)
 
                     // ✅ Optional: Lock AE to reduce focus shifting
                     set(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON)
