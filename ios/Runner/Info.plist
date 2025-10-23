@@ -33,10 +33,6 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to take photos.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>We need access to your microphone to record audio.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>
@@ -58,14 +54,20 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>This app uses the camera to enable augmented reality product simulations, allowing you to visualize MASKhaze and SRTmaze products in real environments.</string>
+
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app may use the microphone to enhance AR experiences that require environmental audio or voice interaction during simulations.</string>
+
 	<key>NSMotionUsageDescription</key>
-	<string>This app uses motion sensors to enhance AR and VR experiences.</string>
+	<string>This app uses motion sensors to track device movement and orientation, creating realistic AR and VR experiences when viewing MASKhaze products.</string>
 
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app may access your location to improve AR tracking and positioning.</string>
+	<string>This app uses your location only while you are viewing AR simulations to help align virtual products accurately within your surroundings.</string>
 
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app may use your location while running to provide better AR features.</string>
+	<string>This app may use your location when displaying persistent AR experiences, helping you preview MASKhaze products in the correct real-world position.</string>
 
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>This app may use Bluetooth to connect to nearby AR/VR devices or accessories.</string>
