@@ -53,6 +53,9 @@ post_install do |installer|
         'PERMISSION_SENSORS=1',
         'PERMISSION_BLUETOOTH=1',
       ]
+
+      config.build_settings['OTHER_SWIFT_FLAGS'] ||= ['']
+      config.build_settings['OTHER_SWIFT_FLAGS'] << '-DDISABLE_TRUEDEPTH_API'
     end
   end
 end
