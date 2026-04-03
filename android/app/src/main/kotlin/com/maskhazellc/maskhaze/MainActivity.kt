@@ -1,4 +1,4 @@
-package com.example.maskhaze_flutter
+package com.maskhazellc.maskhaze
 
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
