@@ -1,4 +1,4 @@
-package com.example.maskhaze_flutter
+package com.maskhazellc.maskhaze
 
 import android.content.Context
 import android.graphics.Matrix

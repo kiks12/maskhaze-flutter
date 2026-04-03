@@ -1,4 +1,4 @@
-package com.example.maskhaze_flutter
+package com.maskhazellc.maskhaze
 
 import android.content.Context
 import io.flutter.plugin.common.BinaryMessenger
