@@ -45,12 +45,14 @@ class _ContactScreenState extends State<ContactScreen> {
     try {
       final to = EMAIL;
       const subject = 'Contact Inquiry';
-      final body = 'Name: ${_nameController.text}\nEmail: ${_emailController.text}\nMessage: ${_messageController.text}';
-      
+      final body =
+          'Name: ${_nameController.text}\nEmail: ${_emailController.text}\nMessage: ${_messageController.text}';
+
       final uri = Uri(
         scheme: 'mailto',
         path: to,
-        query: 'subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(body)}',
+        query:
+            'subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(body)}',
       );
 
       if (await canLaunchUrl(uri)) {
@@ -105,7 +107,9 @@ class _ContactScreenState extends State<ContactScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Inquiry'),
-          content: const Text('Thank you for your inquiry! Please send the email in your mail app.'),
+          content: const Text(
+            'Thank you for your inquiry! Please send the email in your mail app.',
+          ),
           backgroundColor: ColorStyles.cardBackground,
           titleTextStyle: ColorStyles.textLightStyle.copyWith(
             fontSize: 18,
@@ -137,12 +141,12 @@ class _ContactScreenState extends State<ContactScreen> {
     if (value == null || value.isEmpty) {
       return 'Email is required';
     }
-    
+
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
       return 'Please enter a valid email';
     }
-    
+
     return null;
   }
 
@@ -154,7 +158,10 @@ class _ContactScreenState extends State<ContactScreen> {
         backgroundColor: ColorStyles.backgroundMain,
         foregroundColor: ColorStyles.primary,
         automaticallyImplyLeading: false,
-        title: const Text('Contact Us', style: TextStyle(color: ColorStyles.textMain)),
+        title: const Text(
+          'Contact Us',
+          style: TextStyle(color: ColorStyles.textMain),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -164,7 +171,7 @@ class _ContactScreenState extends State<ContactScreen> {
               // Header Section
               _buildHeader(),
               const SizedBox(height: 30),
-              
+
               // Contact Information Cards
               _buildContactCard(
                 icon: Icons.email,
@@ -172,23 +179,29 @@ class _ContactScreenState extends State<ContactScreen> {
                 info: 'MASKhaze@tbrtengineering.com',
               ),
               const SizedBox(height: 12),
-              
+
               _buildContactCard(
                 icon: Icons.phone,
                 title: 'Phone',
                 info: '+1 920-245-3392',
               ),
               const SizedBox(height: 12),
-              
+
               _buildContactCard(
-                icon: Icons.location_pin,
-                title: 'Address',
-                info: 'Lake Mills, WI 53551',
+                icon: Icons.web,
+                title: 'Website',
+                info: 'https://www.maskhaze.com',
+                actionIcon: Icons.open_in_new,
+                onActionIconPressed: () async {
+                  final url = Uri.parse('https://www.maskhaze.com');
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  } else {
+                    _showAlert('Could not open the website.');
+                  }
+                },
               ),
               const SizedBox(height: 18),
-              
-              // Contact Form
-              _buildContactForm(),
             ],
           ),
         ),
@@ -219,6 +232,8 @@ class _ContactScreenState extends State<ContactScreen> {
     required IconData icon,
     required String title,
     required String info,
+    IconData? actionIcon,
+    void Function()? onActionIconPressed,
   }) {
     return Container(
       width: double.infinity,
@@ -233,11 +248,7 @@ class _ContactScreenState extends State<ContactScreen> {
         children: [
           Container(
             margin: const EdgeInsets.only(top: 2, right: 8),
-            child: Icon(
-              icon,
-              size: 24,
-              color: ColorStyles.primary,
-            ),
+            child: Icon(icon, size: 24, color: ColorStyles.primary),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -262,145 +273,13 @@ class _ContactScreenState extends State<ContactScreen> {
               ],
             ),
           ),
+          if (actionIcon != null && onActionIconPressed != null)
+            IconButton(
+              onPressed: onActionIconPressed,
+              icon: Icon(actionIcon),
+              color: ColorStyles.primary,
+            ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildContactForm() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: ColorStyles.borderColor),
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Name Field
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                hintText: 'Name',
-                filled: true,
-                fillColor: ColorStyles.backgroundMain,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: ColorStyles.borderColor),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: ColorStyles.borderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: ColorStyles.primary),
-                ),
-                contentPadding: EdgeInsets.all(12),
-                hintStyle: TextStyle(color: ColorStyles.textMuted),
-              ),
-              style: const TextStyle(
-                fontSize: 16,
-                color: ColorStyles.textMain,
-              ),
-              textCapitalization: TextCapitalization.words,
-              validator: (value) => _validateRequired(value, 'Name'),
-            ),
-            const SizedBox(height: 12),
-            
-            // Email Field
-            TextFormField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                hintText: 'Email',
-                filled: true,
-                fillColor: ColorStyles.backgroundMain,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: ColorStyles.borderColor),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: ColorStyles.borderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: ColorStyles.primary),
-                ),
-                contentPadding: EdgeInsets.all(12),
-                hintStyle: TextStyle(color: ColorStyles.textMuted),
-              ),
-              style: const TextStyle(
-                fontSize: 16,
-                color: ColorStyles.textMain,
-              ),
-              validator: _validateEmail,
-            ),
-            const SizedBox(height: 12),
-            
-            // Message Field
-            TextFormField(
-              controller: _messageController,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                hintText: 'Message',
-                filled: true,
-                fillColor: ColorStyles.backgroundMain,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: ColorStyles.borderColor),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: ColorStyles.borderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: ColorStyles.primary),
-                ),
-                contentPadding: EdgeInsets.all(12),
-                hintStyle: TextStyle(color: ColorStyles.textMuted),
-                alignLabelWithHint: true,
-              ),
-              style: const TextStyle(
-                fontSize: 16,
-                color: ColorStyles.textMain,
-              ),
-              validator: (value) => _validateRequired(value, 'Message'),
-            ),
-            const SizedBox(height: 20),
-            
-            // Submit Button
-            ElevatedButton(
-              onPressed: _handleInquire,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: ColorStyles.primary,
-                foregroundColor: ColorStyles.white,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 28,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                elevation: 0,
-              ),
-              child: Text(
-                'Inquire',
-                style: ColorStyles.whiteTextStyle.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  letterSpacing: 0.2,
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
