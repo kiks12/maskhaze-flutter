@@ -1,22 +1,31 @@
-
 import 'dart:math';
 
 import 'package:arkit_plugin/arkit_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:maskhaze_flutter/color_style.dart';
 import 'package:vector_math/vector_math_64.dart' as vm;
+import 'package:maskhaze_flutter/utils/tutorial_helper.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class SimulateIOSsrtmazescreen extends StatefulWidget {
   const SimulateIOSsrtmazescreen({super.key});
 
   @override
-  State<SimulateIOSsrtmazescreen> createState() => _SimulateIOSsrtmazescreenState();
+  State<SimulateIOSsrtmazescreen> createState() =>
+      _SimulateIOSsrtmazescreenState();
 }
 
 class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
   late ARKitController arkitController;
   final List<String> _nodeNames = [];
   int _selectedModel = 0; // 0: Single Panel, 1: Sample Layout
+
+  List<TargetFocus> targets = [];
+  GlobalKey keyBackButton = GlobalKey();
+  GlobalKey keyARView = GlobalKey();
+  GlobalKey keyClearButton = GlobalKey();
+  GlobalKey keySinglePanelButton = GlobalKey();
+  GlobalKey keySampleLayoutButton = GlobalKey();
 
   @override
   void dispose() {
@@ -25,11 +34,174 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _initTutorial();
+  }
+
+  void _initTutorial() {
+    targets.add(
+      TargetFocus(
+        keyTarget: keyBackButton,
+        alignSkip: Alignment.bottomRight,
+        shape: ShapeLightFocus.RRect, // Corrected to RRect
+        radius: 22, // Half of the button's width/height
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Back Button",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    "Tap here to return to the home screen.",
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    targets.add(
+      TargetFocus(
+        keyTarget: keyARView,
+        alignSkip: Alignment.bottomRight,
+        shape: ShapeLightFocus.RRect, // Corrected to RRect
+        radius: 10,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "AR View",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    "This is your Augmented Reality view. Tap on a detected plane to place a maze panel.",
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    targets.add(
+      TargetFocus(
+        keyTarget: keySinglePanelButton,
+        alignSkip: Alignment.bottomRight,
+        shape: ShapeLightFocus.RRect, // Corrected to RRect
+        radius: 50, // Matches the button's rounded ends
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Single Panel Mode",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    "Select this to place individual maze panels in the AR environment.",
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    targets.add(
+      TargetFocus(
+        keyTarget: keySampleLayoutButton,
+        alignSkip: Alignment.bottomRight,
+        shape: ShapeLightFocus.RRect, // Corrected to RRect
+        radius: 50, // Matches the button's rounded ends
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Sample Layout Mode",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    "Choose this to place a pre-designed sample maze layout.",
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      TutorialHelper.showTutorial(
+        context: context,
+        targets: targets,
+        screenId: 'ios_srtmaze_tutorial',
+        onFinish: () {
+          print("iOS SRTMaze Tutorial finished!");
+        },
+        onSkip: () {
+          print("iOS SRTMaze Tutorial skipped!");
+        },
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
           ARKitSceneView(
+            key: keyARView,
             onARKitViewCreated: onARKitViewCreated,
             planeDetection: ARPlaneDetection.horizontal,
             showFeaturePoints: true,
@@ -41,33 +213,37 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                if (_nodeNames.isNotEmpty) 
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Material(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(32),
-                      elevation: 6,
-                      child: InkWell(
+                if (_nodeNames.isNotEmpty)
+                  Builder(
+                    key: keyClearButton,
+                    builder: (context) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Material(
+                        color: Colors.transparent,
                         borderRadius: BorderRadius.circular(32),
-                        onTap: _nodeNames.isEmpty ? null : removeAllNodes,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                          decoration: BoxDecoration(
-                            color: ColorStyles.accent,
-                            borderRadius: BorderRadius.circular(32),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withAlpha(10),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            'Clear',
-                            style: TextStyle(
-                              color: Colors.white,
+                        elevation: 6,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(32),
+                          onTap: _nodeNames.isEmpty ? null : removeAllNodes,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 14,
+                            ),
+                            decoration: BoxDecoration(
+                              color: ColorStyles.accent,
+                              borderRadius: BorderRadius.circular(32),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(10),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              'Clear',
+                              style: TextStyle(color: Colors.white),
                             ),
                           ),
                         ),
@@ -80,8 +256,19 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       children: [
-                        _buildNavButton('Single Panel', 0, isLeft: true),
-                        _buildNavButton('Sample Layout', 1, isLeft: false),
+                        Builder(
+                          key: keySinglePanelButton,
+                          builder: (context) =>
+                              _buildNavButton('Single Panel', 0, isLeft: true),
+                        ),
+                        Builder(
+                          key: keySampleLayoutButton,
+                          builder: (context) => _buildNavButton(
+                            'Sample Layout',
+                            1,
+                            isLeft: false,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -92,28 +279,31 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
           Positioned(
             top: 32,
             left: 16,
-            child: Material(
-              color: Colors.transparent,
-              shape: const CircleBorder(),
-              elevation: 4,
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () => Navigator.of(context).maybePop(),
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: ColorStyles.cardBackground,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(10),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+            child: Builder(
+              key: keyBackButton,
+              builder: (context) => Material(
+                color: Colors.transparent,
+                shape: const CircleBorder(),
+                elevation: 4,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () => Navigator.of(context).maybePop(),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: ColorStyles.cardBackground,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(10),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.arrow_back, color: Colors.white),
                   ),
-                  child: const Icon(Icons.arrow_back, color: Colors.white),
                 ),
               ),
             ),
@@ -135,7 +325,9 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
         child: Container(
           height: 56,
           decoration: BoxDecoration(
-            color: isSelected ? ColorStyles.primary : ColorStyles.backgroundMain,
+            color: isSelected
+                ? ColorStyles.primary
+                : ColorStyles.backgroundMain,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(isLeft ? 50 : 0),
               bottomLeft: Radius.circular(isLeft ? 50 : 0),
@@ -186,13 +378,10 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
       final cameraTransform = await arkitController.getCameraEulerAngles();
 
       final node = ARKitReferenceNode(
-        light: ARKitLight(
-          intensity: 10.0,
-          type: ARKitLightType.ambient
-        ),
+        light: ARKitLight(intensity: 10.0, type: ARKitLightType.ambient),
         url: modelUrl,
         name: "model_${_nodeNames.length}",
-        scale: _selectedModel == 0 ?  vm.Vector3.all(1) : vm.Vector3.all(1),
+        scale: _selectedModel == 0 ? vm.Vector3.all(1) : vm.Vector3.all(1),
         position: hit.worldTransform.getTranslation(),
         eulerAngles: vm.Vector3(cameraTransform.y, 0, 0),
       );
@@ -209,14 +398,25 @@ class _SimulateIOSsrtmazescreenState extends State<SimulateIOSsrtmazescreen> {
             return AlertDialog(
               backgroundColor: ColorStyles.backgroundMain,
               iconColor: ColorStyles.primary,
-              title: const Text("Object Render Failed", style: TextStyle(color: ColorStyles.textMain),),
-              content: const Text("Cannot find surface to anchor object.", style: TextStyle(color: ColorStyles.textLight),),
+              title: const Text(
+                "Object Render Failed",
+                style: TextStyle(color: ColorStyles.textMain),
+              ),
+              content: const Text(
+                "Cannot find surface to anchor object.",
+                style: TextStyle(color: ColorStyles.textLight),
+              ),
               actions: [
                 ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(ColorStyles.primary),
+                    backgroundColor: WidgetStateProperty.all(
+                      ColorStyles.primary,
+                    ),
                   ),
-                  child: const Text("OK", style: TextStyle(color: ColorStyles.textMain),),
+                  child: const Text(
+                    "OK",
+                    style: TextStyle(color: ColorStyles.textMain),
+                  ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],

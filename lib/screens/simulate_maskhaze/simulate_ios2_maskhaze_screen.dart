@@ -5,6 +5,8 @@ import 'package:maskhaze_flutter/color_style.dart';
 import 'package:maskhaze_flutter/screens/widgets/ios_camera_view.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:maskhaze_flutter/utils/tutorial_helper.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class Simulateios2maskhazescreen extends StatefulWidget {
   const Simulateios2maskhazescreen({super.key});
@@ -19,12 +21,171 @@ class _Simulateios2maskhazescreenState extends State<Simulateios2maskhazescreen>
   bool _permissionDenied = false;
   bool _checkingPermission = true;
   double? _originalBrightness;
+  bool _cameraInitialized = false; // New flag
+
+  List<TargetFocus> targets = [];
+  GlobalKey keyBackButton = GlobalKey();
+  GlobalKey keyCameraView = GlobalKey();
+  GlobalKey keyMaskhazeButton = GlobalKey();
+  GlobalKey keyMaskhazeLightButton = GlobalKey();
 
   @override
   void initState() {
     super.initState();
     _initializeControllerFuture = _checkPermissionAndInitCamera();
     _setBrightness();
+  }
+
+  void _initTutorial() {
+    targets.add(
+      TargetFocus(
+        keyTarget: keyBackButton,
+        alignSkip: Alignment.bottomRight,
+        shape: ShapeLightFocus.RRect, // Corrected to RRect
+        radius: 22, // Half of the button's width/height
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Back Button",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 20.0),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    "Tap here to return to the home screen.",
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    targets.add(
+      TargetFocus(
+        keyTarget: keyCameraView,
+        alignSkip: Alignment.bottomRight,
+        shape: ShapeLightFocus.RRect, // Corrected to RRect
+        radius: 10,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Live Camera Feed",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 20.0),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    "This is your live camera feed, simulating the Maskhaze effect.",
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    targets.add(
+      TargetFocus(
+        keyTarget: keyMaskhazeButton,
+        alignSkip: Alignment.bottomRight,
+        shape: ShapeLightFocus.RRect, // Corrected to RRect
+        radius: 50, // Matches the button's rounded ends
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Maskhaze Mode",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 20.0),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    "Switch to the standard Maskhaze simulation mode.",
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    targets.add(
+      TargetFocus(
+        keyTarget: keyMaskhazeLightButton,
+        alignSkip: Alignment.bottomRight,
+        shape: ShapeLightFocus.RRect, // Corrected to RRect
+        radius: 50, // Matches the button's rounded ends
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Maskhaze Light Mode",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 20.0),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    "Experience a lighter version of the Maskhaze effect.",
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      TutorialHelper.showTutorial(
+        context: context,
+        targets: targets,
+        screenId: 'ios_maskhaze_tutorial',
+        onFinish: () {
+          print("iOS Maskhaze Tutorial finished!");
+        },
+        onSkip: () {
+          print("iOS Maskhaze Tutorial skipped!");
+        },
+      );
+    });
   }
 
   Future<void> _setBrightness() async {
@@ -107,6 +268,11 @@ class _Simulateios2maskhazescreenState extends State<Simulateios2maskhazescreen>
       future: _initializeControllerFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
+          // No NativeCameraController.setManualFocus for iOS, but we still need to ensure camera is ready
+          if (!_cameraInitialized) {
+            _cameraInitialized = true;
+            _initTutorial(); // Call _initTutorial here
+          }
           return Scaffold(
             backgroundColor: Colors.black,
             body: SafeArea(
@@ -122,7 +288,10 @@ class _Simulateios2maskhazescreenState extends State<Simulateios2maskhazescreen>
                         width: double.infinity,
                         child: Stack(
                           children: [
-                            IOSCameraView(),
+                            Builder(
+                              key: keyCameraView,
+                              builder: (context) => IOSCameraView(),
+                            ),
                             Container(
                               color: _selectedMode == 0
                                   ? Colors.black.withAlpha(230)
@@ -156,28 +325,31 @@ class _Simulateios2maskhazescreenState extends State<Simulateios2maskhazescreen>
                   Positioned(
                     top: 32,
                     left: 16,
-                    child: Material(
-                      color: Colors.transparent,
-                      shape: const CircleBorder(),
-                      elevation: 4,
-                      child: InkWell(
-                        customBorder: const CircleBorder(),
-                        onTap: () => Navigator.of(context).maybePop(),
-                        child: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: ColorStyles.cardBackground,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withAlpha(32),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                    child: Builder(
+                      key: keyBackButton,
+                      builder: (context) => Material(
+                        color: Colors.transparent,
+                        shape: const CircleBorder(),
+                        elevation: 4,
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => Navigator.of(context).maybePop(),
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: ColorStyles.cardBackground,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(32),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(Icons.arrow_back, color: Colors.white),
                           ),
-                          child: const Icon(Icons.arrow_back, color: Colors.white),
                         ),
                       ),
                     ),
@@ -202,25 +374,28 @@ class _Simulateios2maskhazescreenState extends State<Simulateios2maskhazescreen>
             _selectedMode = index;
           });
         },
-        child: Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: isSelected ? ColorStyles.primary : ColorStyles.cardBackground,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(isLeft ? 50 : 0),
-              bottomLeft: Radius.circular(isLeft ? 50 : 0),
-              topRight: Radius.circular(!isLeft ? 50 : 0),
-              bottomRight: Radius.circular(!isLeft ? 50 : 0),
+        child: Builder(
+          key: isLeft ? keyMaskhazeButton : keyMaskhazeLightButton,
+          builder: (context) => Container(
+            height: 56,
+            decoration: BoxDecoration(
+              color: isSelected ? ColorStyles.primary : ColorStyles.cardBackground,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(isLeft ? 50 : 0),
+                bottomLeft: Radius.circular(isLeft ? 50 : 0),
+                topRight: Radius.circular(!isLeft ? 50 : 0),
+                bottomRight: Radius.circular(!isLeft ? 50 : 0),
+              ),
             ),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? ColorStyles.textMain : ColorStyles.textMuted,
-              fontSize: 16,
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? ColorStyles.textMain : ColorStyles.textMuted,
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
           ),
         ),
       ),

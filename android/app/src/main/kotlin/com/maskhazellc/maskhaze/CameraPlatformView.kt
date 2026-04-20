@@ -29,6 +29,7 @@ class CameraPlatformView(context: Context, id: Int, messenger: BinaryMessenger) 
     private var captureSession: CameraCaptureSession? = null
     private lateinit var previewRequestBuilder: CaptureRequest.Builder
     private val backgroundHandler: Handler
+    private var isCameraActive = false
 
     init {
         methodChannel.setMethodCallHandler { call, result ->
@@ -77,15 +78,18 @@ class CameraPlatformView(context: Context, id: Int, messenger: BinaryMessenger) 
             cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
                 override fun onOpened(camera: CameraDevice) {
                     cameraDevice = camera
+                    isCameraActive = true // Set active on opened
                     createPreviewSession()
                 }
 
                 override fun onDisconnected(camera: CameraDevice) {
                     camera.close()
+                    isCameraActive = false // Set inactive on disconnected
                 }
 
                 override fun onError(camera: CameraDevice, error: Int) {
                     camera.close()
+                    isCameraActive = false // Set inactive on error
                 }
             }, backgroundHandler)
         } catch (e: SecurityException) {
@@ -142,11 +146,13 @@ class CameraPlatformView(context: Context, id: Int, messenger: BinaryMessenger) 
                 camera.createCaptureSession(listOf(surface), object : CameraCaptureSession.StateCallback() {
                     override fun onConfigured(session: CameraCaptureSession) {
                         captureSession = session
+                        isCameraActive = true // Set active on configured
                         session.setRepeatingRequest(previewRequestBuilder.build(), null, backgroundHandler)
                     }
 
                     override fun onConfigureFailed(session: CameraCaptureSession) {
                         Log.e("CameraPlatformView", "Capture session configuration failed")
+                        isCameraActive = false // Set inactive on failed configuration
                     }
                 }, backgroundHandler)
             }
@@ -156,6 +162,11 @@ class CameraPlatformView(context: Context, id: Int, messenger: BinaryMessenger) 
     }
 
     private fun setManualFocus(context: Context, distanceMeters: Float) {
+        if (!isCameraActive || captureSession == null) { // Added isCameraActive check
+            Log.e("CameraPlatformView", "setManualFocus: Camera not active or captureSession is null. Ignoring request.")
+            return
+        }
+
         val diopters = 1.0f / distanceMeters
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         val cameraId = cameraManager.cameraIdList.first()
@@ -172,7 +183,13 @@ class CameraPlatformView(context: Context, id: Int, messenger: BinaryMessenger) 
             set(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON)
         }
 
-        captureSession?.setRepeatingRequest(previewRequestBuilder.build(), null, null)
+        try {
+            captureSession?.setRepeatingRequest(previewRequestBuilder.build(), null, null)
+        } catch (e: CameraAccessException) {
+            Log.e("CameraPlatformView", "Failed to set repeating request for manual focus", e)
+        } catch (e: IllegalStateException) {
+            Log.e("CameraPlatformView", "Capture session is closed while trying to set manual focus", e)
+        }
     }
 
 
@@ -181,5 +198,6 @@ class CameraPlatformView(context: Context, id: Int, messenger: BinaryMessenger) 
     override fun dispose() {
         cameraDevice?.close()
         captureSession?.close()
+        isCameraActive = false // Set inactive on dispose
     }
 }

@@ -7,7 +7,6 @@ import 'screens/home_screen.dart';
 import 'screens/products/products_screen.dart';
 import 'screens/contact_screen.dart';
 
-
 class NativeCameraController {
   static const MethodChannel _channel = MethodChannel('native_camera');
 
@@ -22,14 +21,9 @@ class NativeCameraController {
   }
 }
 
-const widgetOptiosn = [
-  HomeScreen(),
-  Productsscreen(),
-  ContactScreen(),
-];
+const widgetOptiosn = [HomeScreen(), Productsscreen(), ContactScreen()];
 
 void main() {
-  
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
@@ -62,10 +56,7 @@ class _MyAppState extends State<MyApp> {
         backgroundColor: ColorStyles.backgroundMain,
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(
               icon: Icon(Icons.shopping_bag),
               label: 'Products',

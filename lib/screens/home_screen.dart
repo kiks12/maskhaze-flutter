@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:maskhaze_flutter/color_style.dart';
+import 'package:maskhaze_flutter/utils/tutorial_helper.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -10,6 +12,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<TargetFocus> targets = [];
+  GlobalKey keyButtonMaskhaze = GlobalKey();
+  GlobalKey keyButtonSRTMaze = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -20,6 +26,91 @@ class _HomeScreenState extends State<HomeScreen> {
         statusBarIconBrightness: Brightness.light,
       ),
     );
+    _initTutorial();
+  }
+
+  void _initTutorial() {
+    targets.add(
+      TargetFocus(
+        keyTarget: keyButtonMaskhaze,
+        alignSkip: Alignment.bottomRight, // Changed for better placement
+        shape: ShapeLightFocus.RRect, // Corrected to RRect // Changed to match button shape
+        radius: 16, // Matches button's border radius
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Simulate Maskhaze",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 20.0),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    "Tap here to start a Maskhaze simulation. This will guide you through a realistic training scenario.",
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    targets.add(
+      TargetFocus(
+        keyTarget: keyButtonSRTMaze,
+        alignSkip: Alignment.bottomRight, // Changed for better placement
+        shape: ShapeLightFocus.RRect, // Corrected to RRect // Changed to match button shape
+        radius: 16, // Matches button's border radius
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Simulate SRTMaze",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 20.0),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    "Explore the SRTMaze simulation for advanced training exercises.",
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      TutorialHelper.showTutorial(
+        context: context,
+        targets: targets,
+        screenId: 'home_screen_tutorial',
+        onFinish: () {
+          print("Tutorial finished!");
+        },
+        onSkip: () {
+          print("Tutorial skipped!");
+        },
+      );
+    });
   }
 
   void handleSimulateMaskhaze() {
@@ -189,10 +280,16 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         children: [
           // Primary Button - Simulate Maskhaze
-          _buildPrimaryButton(),
+          Builder(
+            key: keyButtonMaskhaze,
+            builder: (context) => _buildPrimaryButton(),
+          ),
           const SizedBox(height: 16),
           // Secondary Button - Simulate SRTMaze
-          _buildSecondaryButton(),
+          Builder(
+            key: keyButtonSRTMaze,
+            builder: (context) => _buildSecondaryButton(),
+          ),
         ],
       ),
     );
